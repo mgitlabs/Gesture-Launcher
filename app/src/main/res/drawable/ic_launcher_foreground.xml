@@ -1,0 +1,61 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    
+    <!-- Outer Neon Gesture Glow Path -->
+    <path
+        android:pathData="M 24,54 C 24,37.43 37.43,24 54,24 C 70.57,24 84,37.43 84,54 C 84,70.57 70.57,84 54,84"
+        android:strokeWidth="5"
+        android:strokeLineCap="round">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:startX="24"
+                android:startY="54"
+                android:endX="84"
+                android:endY="54"
+                android:type="linear">
+                <item android:color="#FF00E5FF" android:offset="0.0" />
+                <item android:color="#FF7200FF" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Sleek Diagonal Gesture Swipe/Speed Tail -->
+    <path
+        android:pathData="M 34,74 L 74,34 M 50,74 L 74,50"
+        android:strokeWidth="3.5"
+        android:strokeLineCap="round">
+        <aapt:attr name="android:strokeColor">
+            <gradient
+                android:startX="34"
+                android:startY="74"
+                android:endX="74"
+                android:endY="34"
+                android:type="linear">
+                <item android:color="#1AFFFFFF" android:offset="0.0" />
+                <item android:color="#E6FFFFFF" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+
+    <!-- Finger Touch Indicator Circle (Pulsing Center Feel) -->
+    <path
+        android:pathData="M 54,54 m -8,0 a 8,8 0 1,1 16,0 a 8,8 0 1,1 -16,0"
+        android:strokeWidth="2"
+        android:strokeColor="#FFFFFF">
+        <aapt:attr name="android:fillColor">
+            <gradient
+                android:startX="46"
+                android:startY="46"
+                android:endX="62"
+                android:endY="62"
+                android:type="linear">
+                <item android:color="#FFFF3D00" android:offset="0.0" />
+                <item android:color="#FFFFEB3B" android:offset="1.0" />
+            </gradient>
+        </aapt:attr>
+    </path>
+</vector>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Bento Theme Light Scheme -->
+    <color name="bg_dark">#FDFBFF</color> <!-- Using bg_dark as MainActivity's background attribute, pointing to Bento light background -->
+    <color name="text_primary">#1B1B1F</color>
+    <color name="text_secondary">#44474E</color>
+
+    <!-- Card 1: Accessibility Service (Large Blue Card) -->
+    <color name="card_blue_bg">#D3E3FD</color>
+    <color name="card_blue_text">#041E49</color>
+    <color name="pill_status_inactive_bg">#004A77</color>
+    <color name="pill_status_active_bg">#004A77</color>
+    <color name="btn_blue_bg">#0061A4</color>
+
+    <!-- Card 2: Target Application (Light Gray Border Card) -->
+    <color name="card_gray_bg">#F3F3F3</color>
+    <color name="card_gray_border">#C4C7C8</color>
+    <color name="input_border">#74777F</color>
+    <color name="white_input_bg">#FFFFFF</color>
+
+    <!-- Card 3: Zone Height (Split pink/purple Card) -->
+    <color name="card_pink_bg">#FEEBFF</color>
+    <color name="card_pink_text">#2A122C</color>
+
+    <!-- Card 4: Action Info (Split purple Card) -->
+    <color name="card_purple_bg">#FEF7FF</color>
+    <color name="card_purple_border">#EADDFF</color>
+    <color name="card_purple_text">#21005D</color>
+    <color name="card_purple_desc">#49454F</color>
+
+    <!-- Live Interception Zone -->
+    <color name="live_zone_color">#66FFB4AB</color> <!-- 40% opacity on #ffb4ab -->
+    <color name="live_zone_border">#BA1A1A</color>
+    <color name="live_zone_text">#690005</color>
+
+    <!-- Keep old name links/compat names -->
+    <color name="card_dark">#D3E3FD</color>
+    <color name="primary_color">#0061A4</color>
+    <color name="primary_accent">#004A77</color>
+    <color name="status_active">#0A5B2C</color>
+    <color name="status_inactive">#BA1A1A</color>
+    <color name="input_background">#FFFFFF</color>
+
+    <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
+</resources>

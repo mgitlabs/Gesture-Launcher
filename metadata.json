@@ -1,0 +1,6 @@
+{
+  "name": "Gesture Launcher",
+  "description": "Launcher app which intercepts bottom bar touch gestures and launches other applications on a long press hold.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

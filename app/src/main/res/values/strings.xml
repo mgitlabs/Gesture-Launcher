@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">Gesture Launcher</string>
+    <string name="accessibility_service_description">Intercepts bottom bar touch gestures and launches the selected app on a long press hold.</string>
+</resources>

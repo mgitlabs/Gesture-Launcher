@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Theme.MyApplication" parent="Theme.Material3.Dark.NoActionBar">
+        <!-- Customize your dark theme here. -->
+        <item name="colorPrimary">#6366F1</item>
+        <item name="colorOnPrimary">#FFFFFF</item>
+        <item name="colorPrimaryContainer">#312E81</item>
+        <item name="colorOnPrimaryContainer">#E0E7FF</item>
+
+        <item name="colorSecondary">#22D3EE</item>
+        <item name="colorOnSecondary">#0F172A</item>
+        <item name="colorSecondaryContainer">#083344</item>
+        <item name="colorOnSecondaryContainer">#CFFAFE</item>
+
+        <item name="colorTertiary">#F87171</item>
+        <item name="colorOnTertiary">#7F1D1D</item>
+        <item name="colorTertiaryContainer">#7F1D1D</item>
+        <item name="colorOnTertiaryContainer">#FEE2E2</item>
+
+        <item name="android:windowBackground">#0F172A</item>
+        <item name="colorSurface">#1E293B</item>
+        <item name="colorOnSurface">#F8FAFC</item>
+        <item name="colorSurfaceVariant">#0F172A</item>
+        <item name="colorOnSurfaceVariant">#94A3B8</item>
+
+        <item name="colorOutline">#475569</item>
+        <item name="colorOutlineVariant">#334155</item>
+        <item name="colorSurfaceContainerHigh">#1E293B</item>
+
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowDrawsSystemBarBackgrounds">true</item>
+    </style>
+</resources>
