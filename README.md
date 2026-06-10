@@ -20,14 +20,14 @@
  * **TalkBack-Safe Implementation:** Built cleanly without utilizing touch exploration flags to completely mitigate touch response freezing or dual-finger lock bugs.
 ## 📸 Screenshots
 <p align="center">
-<img src="assets/Screenshot_20260611-052221.png" width="280" alt="Screenshot 1">
-<img src="assets/Screenshot_20260611-052230.png" width="280" alt="Screenshot 2">
-<img src="assets/Screenshot_20260611-052235.png" width="280" alt="Screenshot 3">
+<img src="assets/Screenshot_20260611-052221.png" width="31%" />
+<img src="assets/Screenshot_20260611-052230.png" width="31%" />
+<img src="assets/Screenshot_20260611-052235.png" width="31%" />
 </p>
 <p align="center">
-<img src="assets/Screenshot_20260611-052246.png" width="280" alt="Screenshot 4">
-<img src="assets/Screenshot_20260611-052305.png" width="280" alt="Screenshot 5">
-<img src="assets/Screenshot_20260611-052316.png" width="280" alt="Screenshot 6">
+<img src="assets/Screenshot_20260611-052246.png" width="31%" />
+<img src="assets/Screenshot_20260611-052305.png" width="31%" />
+<img src="assets/Screenshot_20260611-052316.png" width="31%" />
 </p>
 ## 🛠️ Project File Structure
 ```text
@@ -69,55 +69,8 @@ This application handles low-level interaction metrics to automate system naviga
 ## 🚀 Getting Started
  1. Clone the repository:
    ```bash
-   git clone https://github.com/yourusername/GestureLauncher.git
+   git clone https://github.com/mgitlabs/Gesture-Launcher.git
    
-   ```
- 2. Open the project in **Android Studio** (Jellyfish or newer recommended).
- 3. Ensure your Gradle configuration uses target and compile SDKs set to **Android 14 (API 34)** or higher.
- 4. Compile, build, and deploy the debug or release APK directly to your test hardware device.
- 5. Navigate to Settings > Accessibility > Installed Apps on your phone, locate **Gesture Launcher**, and switch it on.
- * **TalkBack-Safe Implementation:** Built cleanly without utilizing touch exploration flags to completely mitigate touch response freezing or dual-finger lock bugs.
-## 🛠️ Project File Structure
-```text
-GestureLauncher/
-│
-├── app/
-│   ├── src/
-│   │   ├── main/
-│   │   │   ├── java/com/mahadi/gesturelauncher/
-│   │   │   │   ├── MainActivity.java                # Main entry, ViewPager2 & window inset setup
-│   │   │   │   ├── NavbarAccessibilityService.java  # Core touch mathematics & gesture engine
-│   │   │   │   ├── fragments/
-│   │   │   │   │   ├── BottomBarFragment.java       # Bottom edge configuration logic
-│   │   │   │   │   ├── TopBarFragment.java          # Top edge configuration logic
-│   │   │   │   │   └── GlobalSettingsFragment.java  # System permissions & core toggles
-│   │   │   │   └── adapters/
-│   │   │   │       └── AppPickerAdapter.java        # Package manager async list renderer
-│   │   │   │
-│   │   │   ├── res/
-│   │   │   │   ├── drawable/
-│   │   │   │   │   ├── ic_gesture_logo.xml          # Minimalist vector asset logo
-│   │   │   │   │   └── ic_theme_toggle.xml          # Dynamic light/dark vector indicator
-│   │   │   │   ├── layout/
-│   │   │   │   │   ├── activity_main.xml            # Tabbed container with theme toggle
-│   │   │   │   │   ├── fragment_bottom_bar.xml      # Material3 cards for bottom controls
-│   │   │   │   │   ├── fragment_top_bar.xml         # Material3 cards for top controls
-│   │   │   │   │   └── fragment_global_settings.xml # Layout for accessibility & write toggles
-│   │   │   │   └── xml/
-│   │   │   │       └── accessibility_service_config.xml # Safe configuration binding flags
-│   │   │   │
-│   │   │   └── AndroidManifest.xml                  # System permissions & service declarations
-│   │   └── build.gradle
-
-```
-## 🔒 Permissions & Safety
-This application handles low-level interaction metrics to automate system navigation tasks. It requires:
- 1. **BIND_ACCESSIBILITY_SERVICE**: To securely register coordinates on the edge bounds and dispatch performGlobalAction intents.
- 2. **WRITE_SETTINGS**: Requested on-demand only when a gesture routing is bound to display brightness shifting tasks.
-## 🚀 Getting Started
- 1. Clone the repository:
-   ```bash
-   git clone https://github.com/mgitlabs/Gesture-Launcher.git   
    ```
  2. Open the project in **Android Studio** (Jellyfish or newer recommended).
  3. Ensure your Gradle configuration uses target and compile SDKs set to **Android 14 (API 34)** or higher.
