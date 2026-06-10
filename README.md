@@ -20,48 +20,61 @@
  * **Premium Material Design 3 UI:** Tabbed-Layout interface utilizing TabLayout and ViewPager2 supporting dynamic automated DayNight Light/Dark theme switching with clean outlined exposed dropdown menus.
  * **TalkBack-Safe Implementation:** Built cleanly without utilizing touch exploration flags to completely mitigate touch response freezing or dual-finger lock bugs.
 ## 📸 Screenshots
-<p align="center">
-<img src="assets/Screenshot_20260611-052221.png" width="31%" />
-<img src="assets/Screenshot_20260611-052230.png" width="31%" />
-<img src="assets/Screenshot_20260611-052235.png" width="31%" />
-</p>
-<p align="center">
-<img src="assets/Screenshot_20260611-052246.png" width="31%" />
-<img src="assets/Screenshot_20260611-052305.png" width="31%" />
-<img src="assets/Screenshot_20260611-052316.png" width="31%" />
-</p>
+<table align="center">
+<tr>
+<td width="33%" align="center">
+<img src="assets/Screenshot_20260611-052221.png" width="100%" alt="Screenshot 1"/>
+</td>
+<td width="33%" align="center">
+<img src="assets/Screenshot_20260611-052230.png" width="100%" alt="Screenshot 2"/>
+</td>
+<td width="33%" align="center">
+<img src="assets/Screenshot_20260611-052235.png" width="100%" alt="Screenshot 3"/>
+</td>
+</tr>
+<tr>
+<td width="33%" align="center">
+<img src="assets/Screenshot_20260611-052246.png" width="100%" alt="Screenshot 4"/>
+</td>
+<td width="33%" align="center">
+<img src="assets/Screenshot_20260611-052305.png" width="100%" alt="Screenshot 5"/>
+</td>
+<td width="33%" align="center">
+<img src="assets/Screenshot_20260611-052316.png" width="100%" alt="Screenshot 6"/>
+</td>
+</tr>
+</table>
 ## 🛠️ Project File Structure
 ```text
 GestureLauncher/
 │
-└── app/
-    ├── src/
-    │   └── main/
-    │       ├── java/
-    │       │   └── com/
-    │       │       └── mahadi/
-    │       │           └── gesturelauncher/
-    │       │               ├── MainActivity.java
-    │       │               ├── NavbarAccessibilityService.java
-    │       │               ├── fragments/
-    │       │               │   ├── BottomBarFragment.java
-    │       │               │   ├── TopBarFragment.java
-    │       │               │   └── GlobalSettingsFragment.java
-    │       │               └── adapters/
-    │       │                   └── AppPickerAdapter.java
-    │       ├── res/
-    │       │   ├── drawable/
-    │       │   │   ├── ic_gesture_logo.xml
-    │       │   │   └── ic_theme_toggle.xml
-    │       │   ├── layout/
-    │       │   │   ├── activity_main.xml
-    │       │   │   ├── fragment_bottom_bar.xml
-    │       │   │   ├── fragment_top_bar.xml
-    │       │   │   └── fragment_global_settings.xml
-    │       │   └── xml/
-    │       │       └── accessibility_service_config.xml
-    │       └── AndroidManifest.xml
-    └── build.gradle
+├── app/
+│   ├── src/
+│   │   ├── main/
+│   │   │   ├── java/com/mahadi/gesturelauncher/
+│   │   │   │   ├── MainActivity.java                # Main entry, ViewPager2 & window inset setup
+│   │   │   │   ├── NavbarAccessibilityService.java  # Core touch mathematics & gesture engine
+│   │   │   │   ├── fragments/
+│   │   │   │   │   ├── BottomBarFragment.java       # Bottom edge configuration logic
+│   │   │   │   │   ├── TopBarFragment.java          # Top edge configuration logic
+│   │   │   │   │   └── GlobalSettingsFragment.java  # System permissions & core toggles
+│   │   │   │   └── adapters/
+│   │   │   │       └── AppPickerAdapter.java        # Package manager async list renderer
+│   │   │   │
+│   │   │   ├── res/
+│   │   │   │   ├── drawable/
+│   │   │   │   │   ├── ic_gesture_logo.xml          # Minimalist vector asset logo
+│   │   │   │   │   └── ic_theme_toggle.xml          # Dynamic light/dark vector indicator
+│   │   │   │   ├── layout/
+│   │   │   │   │   ├── activity_main.xml            # Tabbed container with theme toggle
+│   │   │   │   │   ├── fragment_bottom_bar.xml      # Material3 cards for bottom controls
+│   │   │   │   │   ├── fragment_top_bar.xml         # Material3 cards for top controls
+│   │   │   │   │   └── fragment_global_settings.xml # Layout for accessibility & write toggles
+│   │   │   │   └── xml/
+│   │   │   │       └── accessibility_service_config.xml # Safe configuration binding flags
+│   │   │   │
+│   │   │   └── AndroidManifest.xml                  # System permissions & service declarations
+│   │   └── build.gradle
 
 ```
 ## 🔒 Permissions & Safety
