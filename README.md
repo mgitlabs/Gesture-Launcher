@@ -13,7 +13,8 @@
    * **Swipe Left** (horizontal delta calculations)
    * **Swipe Right** (horizontal delta calculations)
  * **Isolated Timings Infrastructure:** Completely separated gesture recognition clock ticks for Top and Bottom handles stored via SharedPreferences.
- * **Robust Action Routing:** * **Launch App:** Asynchronous Installed App Picker (BottomSheet RecyclerView) to search and map native packages cleanly.
+ * **Robust Action Routing:**
+   * **Launch App:** Asynchronous Installed App Picker (BottomSheet RecyclerView) to search and map native packages cleanly.
    * **System Shortcuts:** Hardware triggers like Take Screenshot, Expand Notifications, and Lock Screen.
    * **Hardware Controls:** Direct display brightness shifting and audio streams manipulation.
  * **Premium Material Design 3 UI:** Tabbed-Layout interface utilizing TabLayout and ViewPager2 supporting dynamic automated DayNight Light/Dark theme switching with clean outlined exposed dropdown menus.
@@ -33,33 +34,34 @@
 ```text
 GestureLauncher/
 │
-├── app/
-│   ├── src/
-│   │   ├── main/
-│   │   │   ├── java/com/mahadi/gesturelauncher/
-│   │   │   │   ├── MainActivity.java                # Main entry, ViewPager2 & window inset setup
-│   │   │   │   ├── NavbarAccessibilityService.java  # Core touch mathematics & gesture engine
-│   │   │   │   ├── fragments/
-│   │   │   │   │   ├── BottomBarFragment.java       # Bottom edge configuration logic
-│   │   │   │   │   ├── TopBarFragment.java          # Top edge configuration logic
-│   │   │   │   │   └── GlobalSettingsFragment.java  # System permissions & core toggles
-│   │   │   │   └── adapters/
-│   │   │   │       └── AppPickerAdapter.java        # Package manager async list renderer
-│   │   │   │
-│   │   │   ├── res/
-│   │   │   │   ├── drawable/
-│   │   │   │   │   ├── ic_gesture_logo.xml          # Minimalist vector asset logo
-│   │   │   │   │   └── ic_theme_toggle.xml          # Dynamic light/dark vector indicator
-│   │   │   │   ├── layout/
-│   │   │   │   │   ├── activity_main.xml            # Tabbed container with theme toggle
-│   │   │   │   │   ├── fragment_bottom_bar.xml      # Material3 cards for bottom controls
-│   │   │   │   │   ├── fragment_top_bar.xml         # Material3 cards for top controls
-│   │   │   │   │   └── fragment_global_settings.xml # Layout for accessibility & write toggles
-│   │   │   │   └── xml/
-│   │   │   │       └── accessibility_service_config.xml # Safe configuration binding flags
-│   │   │   │
-│   │   │   └── AndroidManifest.xml                  # System permissions & service declarations
-│   │   └── build.gradle
+└── app/
+    ├── src/
+    │   └── main/
+    │       ├── java/
+    │       │   └── com/
+    │       │       └── mahadi/
+    │       │           └── gesturelauncher/
+    │       │               ├── MainActivity.java
+    │       │               ├── NavbarAccessibilityService.java
+    │       │               ├── fragments/
+    │       │               │   ├── BottomBarFragment.java
+    │       │               │   ├── TopBarFragment.java
+    │       │               │   └── GlobalSettingsFragment.java
+    │       │               └── adapters/
+    │       │                   └── AppPickerAdapter.java
+    │       ├── res/
+    │       │   ├── drawable/
+    │       │   │   ├── ic_gesture_logo.xml
+    │       │   │   └── ic_theme_toggle.xml
+    │       │   ├── layout/
+    │       │   │   ├── activity_main.xml
+    │       │   │   ├── fragment_bottom_bar.xml
+    │       │   │   ├── fragment_top_bar.xml
+    │       │   │   └── fragment_global_settings.xml
+    │       │   └── xml/
+    │       │       └── accessibility_service_config.xml
+    │       └── AndroidManifest.xml
+    └── build.gradle
 
 ```
 ## 🔒 Permissions & Safety
