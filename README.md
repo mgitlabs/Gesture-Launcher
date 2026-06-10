@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="assets/ic_launcher.webp" alt="App Icon" width="120" height="120">
+</p>
+
 # Gesture Launcher 🚀
 **Gesture Launcher** is a production-ready Android utility application built in Java that leverages the **Android Accessibility Service API** to intercept independent touch boundaries at the very top (Status Bar Area) and bottom (Navigation Bar Area) of the screen. It enables users to trigger custom global system actions or launch target applications instantly from any screen using multi-gesture inputs.
 ## ✨ Features
