@@ -81,19 +81,22 @@
                             android:textSize="13sp" />
                     </RelativeLayout>
 
-                    <SeekBar
+                    <com.google.android.material.slider.Slider
                         android:id="@+id/sb_bottom_threshold_top"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:max="50"
-                        android:min="1"
-                        android:progress="20"
+                        android:layout_marginTop="6dp"
+                        android:valueFrom="1.0"
+                        android:valueTo="50.0"
+                        android:value="20.0"
+                        app:trackHeight="10dp"
+                        app:thumbRadius="11dp"
+                        app:trackColorActive="?attr/colorPrimary"
+                        app:trackColorInactive="?attr/colorSurfaceVariant"
+                        app:thumbColor="?attr/colorPrimary"
+                        app:haloColor="@android:color/transparent"
                         android:paddingStart="0dp"
-                        android:paddingEnd="0dp"
-                        android:minHeight="12dp"
-                        android:maxHeight="12dp"
-                        android:splitTrack="false" />
+                        android:paddingEnd="0dp" />
                 </LinearLayout>
 
                 <!-- Left Inset Margin -->
@@ -124,18 +127,22 @@
                             android:textSize="13sp" />
                     </RelativeLayout>
 
-                    <SeekBar
+                    <com.google.android.material.slider.Slider
                         android:id="@+id/sb_bottom_threshold_left"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:max="49"
-                        android:progress="0"
+                        android:layout_marginTop="6dp"
+                        android:valueFrom="0.0"
+                        android:valueTo="49.0"
+                        android:value="0.0"
+                        app:trackHeight="10dp"
+                        app:thumbRadius="11dp"
+                        app:trackColorActive="?attr/colorPrimary"
+                        app:trackColorInactive="?attr/colorSurfaceVariant"
+                        app:thumbColor="?attr/colorPrimary"
+                        app:haloColor="@android:color/transparent"
                         android:paddingStart="0dp"
-                        android:paddingEnd="0dp"
-                        android:minHeight="12dp"
-                        android:maxHeight="12dp"
-                        android:splitTrack="false" />
+                        android:paddingEnd="0dp" />
                 </LinearLayout>
 
                 <!-- Right Inset Margin -->
@@ -165,18 +172,22 @@
                             android:textSize="13sp" />
                     </RelativeLayout>
 
-                    <SeekBar
+                    <com.google.android.material.slider.Slider
                         android:id="@+id/sb_bottom_threshold_right"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:max="49"
-                        android:progress="0"
+                        android:layout_marginTop="6dp"
+                        android:valueFrom="0.0"
+                        android:valueTo="49.0"
+                        android:value="0.0"
+                        app:trackHeight="10dp"
+                        app:thumbRadius="11dp"
+                        app:trackColorActive="?attr/colorPrimary"
+                        app:trackColorInactive="?attr/colorSurfaceVariant"
+                        app:thumbColor="?attr/colorPrimary"
+                        app:haloColor="@android:color/transparent"
                         android:paddingStart="0dp"
-                        android:paddingEnd="0dp"
-                        android:minHeight="12dp"
-                        android:maxHeight="12dp"
-                        android:splitTrack="false" />
+                        android:paddingEnd="0dp" />
                 </LinearLayout>
 
             </LinearLayout>
@@ -461,18 +472,22 @@
                             android:textSize="13sp" />
                     </RelativeLayout>
 
-                    <SeekBar
+                    <com.google.android.material.slider.Slider
                         android:id="@+id/sb_bottom_delay_single_tap"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:max="350"
-                        android:progress="200"
+                        android:layout_marginTop="6dp"
+                        android:valueFrom="0.0"
+                        android:valueTo="350.0"
+                        android:value="200.0"
+                        app:trackHeight="10dp"
+                        app:thumbRadius="11dp"
+                        app:trackColorActive="?attr/colorPrimary"
+                        app:trackColorInactive="?attr/colorSurfaceVariant"
+                        app:thumbColor="?attr/colorPrimary"
+                        app:haloColor="@android:color/transparent"
                         android:paddingStart="0dp"
-                        android:paddingEnd="0dp"
-                        android:minHeight="12dp"
-                        android:maxHeight="12dp"
-                        android:splitTrack="false" />
+                        android:paddingEnd="0dp" />
                 </LinearLayout>
 
                 <!-- Double Tap Delay Window -->
@@ -503,18 +518,22 @@
                             android:textSize="13sp" />
                     </RelativeLayout>
 
-                    <SeekBar
+                    <com.google.android.material.slider.Slider
                         android:id="@+id/sb_bottom_delay_double_tap_window"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:max="350"
-                        android:progress="150"
+                        android:layout_marginTop="6dp"
+                        android:valueFrom="0.0"
+                        android:valueTo="350.0"
+                        android:value="150.0"
+                        app:trackHeight="10dp"
+                        app:thumbRadius="11dp"
+                        app:trackColorActive="?attr/colorPrimary"
+                        app:trackColorInactive="?attr/colorSurfaceVariant"
+                        app:thumbColor="?attr/colorPrimary"
+                        app:haloColor="@android:color/transparent"
                         android:paddingStart="0dp"
-                        android:paddingEnd="0dp"
-                        android:minHeight="12dp"
-                        android:maxHeight="12dp"
-                        android:splitTrack="false" />
+                        android:paddingEnd="0dp" />
                 </LinearLayout>
 
                 <!-- Long Press Delay -->
@@ -544,18 +563,22 @@
                             android:textSize="13sp" />
                     </RelativeLayout>
 
-                    <SeekBar
+                    <com.google.android.material.slider.Slider
                         android:id="@+id/sb_bottom_delay_long_press"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:max="1300"
-                        android:progress="300"
+                        android:layout_marginTop="6dp"
+                        android:valueFrom="0.0"
+                        android:valueTo="1300.0"
+                        android:value="300.0"
+                        app:trackHeight="10dp"
+                        app:thumbRadius="11dp"
+                        app:trackColorActive="?attr/colorPrimary"
+                        app:trackColorInactive="?attr/colorSurfaceVariant"
+                        app:thumbColor="?attr/colorPrimary"
+                        app:haloColor="@android:color/transparent"
                         android:paddingStart="0dp"
-                        android:paddingEnd="0dp"
-                        android:minHeight="12dp"
-                        android:maxHeight="12dp"
-                        android:splitTrack="false" />
+                        android:paddingEnd="0dp" />
                 </LinearLayout>
 
             </LinearLayout>

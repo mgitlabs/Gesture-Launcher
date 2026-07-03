@@ -1,66 +1,60 @@
 package com.mahadi.gesturelauncher;
 
-import android.accessibilityservice.AccessibilityServiceInfo;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ServiceInfo;
-import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
+import android.content.SharedPreferences;
+import android.net.Uri;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.accessibility.AccessibilityManager;
-import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 
 import com.example.R;
-
-import java.util.List;
+import com.google.android.material.button.MaterialButton;
+import com.google.android.material.materialswitch.MaterialSwitch;
 
 public class GlobalSettingsFragment extends Fragment {
 
-    private View statusDot;
-    private TextView tvServiceStatus;
-    private TextView tvWriteSettingsStatus;
-    private Button btnEnableService;
-    private Button btnGrantWriteSettings;
+    private static final String PREFS_NAME = "GestureLauncherPrefs";
+    private SharedPreferences sharedPreferences;
+
+    private MaterialSwitch switchThemeAuto;
+    private MaterialSwitch switchThemeDark;
+
+    private TextView tvAccessibilityStatus;
+    private MaterialButton btnAccessibility;
+    private TextView tvOverlayStatus;
+    private MaterialButton btnOverlay;
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_global_settings, container, false);
 
-        statusDot = view.findViewById(R.id.status_dot);
-        tvServiceStatus = view.findViewById(R.id.tv_service_status);
-        tvWriteSettingsStatus = view.findViewById(R.id.tv_write_settings_status);
-        btnEnableService = view.findViewById(R.id.btn_enable_service);
-        btnGrantWriteSettings = view.findViewById(R.id.btn_grant_write_settings);
+        sharedPreferences = requireContext().getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
 
-        // Header pulsing heartbeat decoration
-        View pulseDot = view.findViewById(R.id.pulse_dot);
-        if (pulseDot != null) {
-            android.view.animation.AlphaAnimation anim = new android.view.animation.AlphaAnimation(1.0f, 0.2f);
-            anim.setDuration(1200);
-            anim.setRepeatMode(android.view.animation.Animation.REVERSE);
-            anim.setRepeatCount(android.view.animation.Animation.INFINITE);
-            pulseDot.startAnimation(anim);
-        }
+        // Bind Switches
+        switchThemeAuto = view.findViewById(R.id.switch_theme_auto);
+        switchThemeDark = view.findViewById(R.id.switch_theme_dark);
 
-        btnEnableService.setOnClickListener(v -> {
-            Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
-            startActivity(intent);
-        });
+        // Bind Permissions status and buttons
+        tvAccessibilityStatus = view.findViewById(R.id.status_accessibility);
+        btnAccessibility = view.findViewById(R.id.btn_enable_accessibility);
 
-        btnGrantWriteSettings.setOnClickListener(v -> {
-            checkAndRequestWriteSettingsPermission();
-        });
+        tvOverlayStatus = view.findViewById(R.id.status_overlay);
+        btnOverlay = view.findViewById(R.id.btn_enable_overlay);
+
+        loadThemePreferences();
+        setupThemeListeners();
+        setupPermissionListeners();
 
         return view;
     }
@@ -68,61 +62,130 @@ public class GlobalSettingsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        updateServiceStatusUI();
-        updateWriteSettingsStatusUI();
+        updatePermissionStatus();
     }
 
-    private void updateServiceStatusUI() {
-        boolean isEnabled = isAccessibilityServiceEnabled();
-        tvServiceStatus.setText(isEnabled ? "ACTIVE" : "INACTIVE");
+    private void loadThemePreferences() {
+        boolean autoMode = sharedPreferences.getBoolean("theme_auto", false);
+        boolean darkTheme = sharedPreferences.getBoolean("dark_theme", true);
 
-        GradientDrawable statusDrawable = new GradientDrawable();
-        statusDrawable.setShape(GradientDrawable.OVAL);
-        int activeColor = isEnabled ? Color.parseColor("#10B981") : Color.parseColor("#EF4444");
-        statusDrawable.setColor(activeColor);
-        statusDot.setBackground(statusDrawable);
+        if (switchThemeAuto != null) {
+            switchThemeAuto.setChecked(autoMode);
+        }
+        if (switchThemeDark != null) {
+            switchThemeDark.setChecked(darkTheme);
+            switchThemeDark.setEnabled(!autoMode);
+        }
+
+        updateAppNightMode(autoMode, darkTheme);
     }
 
-    private void updateWriteSettingsStatusUI() {
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            boolean canWrite = Settings.System.canWrite(requireContext());
-            tvWriteSettingsStatus.setText(canWrite ? "GRANTED" : "DENIED");
-            tvWriteSettingsStatus.setTextColor(canWrite ? Color.parseColor("#10B981") : Color.parseColor("#EF4444"));
-        } else {
-            tvWriteSettingsStatus.setText("GRANTED");
-            tvWriteSettingsStatus.setTextColor(Color.parseColor("#10B981"));
+    private void setupThemeListeners() {
+        if (switchThemeAuto != null) {
+            switchThemeAuto.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                sharedPreferences.edit().putBoolean("theme_auto", isChecked).apply();
+                if (switchThemeDark != null) {
+                    switchThemeDark.setEnabled(!isChecked);
+                }
+                boolean currentDark = sharedPreferences.getBoolean("dark_theme", true);
+                updateAppNightMode(isChecked, currentDark);
+            });
+        }
+
+        if (switchThemeDark != null) {
+            switchThemeDark.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                sharedPreferences.edit().putBoolean("dark_theme", isChecked).apply();
+                updateAppNightMode(false, isChecked);
+            });
+        }
+    }
+
+    private void setupPermissionListeners() {
+        if (btnAccessibility != null) {
+            btnAccessibility.setOnClickListener(v -> {
+                Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+                startActivity(intent);
+            });
+        }
+
+        if (btnOverlay != null) {
+            btnOverlay.setOnClickListener(v -> {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                    Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, 
+                        Uri.parse("package:" + requireContext().getPackageName()));
+                    startActivity(intent);
+                } else {
+                    Toast.makeText(requireContext(), "Overlay permission allowed already", Toast.LENGTH_SHORT).show();
+                }
+            });
+        }
+    }
+
+    private void updatePermissionStatus() {
+        if (tvAccessibilityStatus != null && btnAccessibility != null) {
+            boolean active = isAccessibilityServiceEnabled();
+            if (active) {
+                tvAccessibilityStatus.setText("Enabled");
+                tvAccessibilityStatus.setTextColor(0xFF10B981); // premium green
+                btnAccessibility.setEnabled(false);
+                btnAccessibility.setText("Active");
+            } else {
+                tvAccessibilityStatus.setText("Disabled");
+                tvAccessibilityStatus.setTextColor(0xFFEF4444); // deep red
+                btnAccessibility.setEnabled(true);
+                btnAccessibility.setText("Enable Accessibility Service");
+            }
+        }
+
+        if (tvOverlayStatus != null && btnOverlay != null) {
+            boolean active = isOverlayPermissionEnabled();
+            if (active) {
+                tvOverlayStatus.setText("Enabled");
+                tvOverlayStatus.setTextColor(0xFF10B981); // premium green
+                btnOverlay.setEnabled(false);
+                btnOverlay.setText("Permission Allowed");
+            } else {
+                tvOverlayStatus.setText("Disabled");
+                tvOverlayStatus.setTextColor(0xFFEF4444); // deep red
+                btnOverlay.setEnabled(true);
+                btnOverlay.setText("Allow Overlay Permission");
+            }
         }
     }
 
     private boolean isAccessibilityServiceEnabled() {
-        AccessibilityManager am = (AccessibilityManager) requireContext().getSystemService(Context.ACCESSIBILITY_SERVICE);
-        if (am == null) return false;
-
-        List<AccessibilityServiceInfo> enabledServices = am.getEnabledAccessibilityServiceList(
-                AccessibilityServiceInfo.FEEDBACK_GENERIC);
-
-        for (AccessibilityServiceInfo enabledService : enabledServices) {
-            ServiceInfo enabledServiceInfo = enabledService.getResolveInfo().serviceInfo;
-            if (enabledServiceInfo.packageName.equals(requireContext().getPackageName()) &&
-                enabledServiceInfo.name.equals(NavbarAccessibilityService.class.getName())) {
-                return true;
+        String expectedComponentName = requireContext().getPackageName() + "/" + NavbarAccessibilityService.class.getName();
+        String settingValue = Settings.Secure.getString(
+                requireContext().getContentResolver(),
+                Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES
+        );
+        if (settingValue != null) {
+            String[] services = settingValue.split(":");
+            for (String service : services) {
+                if (service.equalsIgnoreCase(expectedComponentName) || service.contains(NavbarAccessibilityService.class.getSimpleName())) {
+                    return true;
+                }
             }
         }
         return false;
     }
 
-    private void checkAndRequestWriteSettingsPermission() {
+    private boolean isOverlayPermissionEnabled() {
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            if (!Settings.System.canWrite(requireContext())) {
-                Intent intent = new Intent(Settings.ACTION_MANAGE_WRITE_SETTINGS);
-                intent.setData(android.net.Uri.parse("package:" + requireContext().getPackageName()));
-                startActivity(intent);
-                Toast.makeText(requireContext(), "Please grant System Write Settings permission to adjust brightness.", Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(requireContext(), "System Write Settings permission is already GRANTED.", Toast.LENGTH_SHORT).show();
-            }
+            return Settings.canDrawOverlays(requireContext());
+        }
+        return true;
+    }
+
+    private void updateAppNightMode(boolean autoMode, boolean darkTheme) {
+        if (autoMode) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
         } else {
-            Toast.makeText(requireContext(), "Your Android version grants this permission automatically.", Toast.LENGTH_SHORT).show();
+            if (darkTheme) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            } else {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            }
         }
     }
 }

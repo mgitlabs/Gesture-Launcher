@@ -12,21 +12,24 @@
         android:orientation="vertical">
 
         <!-- Elegant Refined Dynamic Header -->
-        <RelativeLayout
+        <LinearLayout
             android:id="@+id/header_layout_container"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="8dp"
-            android:paddingHorizontal="16dp"
-            android:paddingVertical="8dp">
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:background="?attr/colorSurface"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingTop="12dp"
+            android:paddingBottom="12dp">
 
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_weight="1"
                 android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_alignParentStart="true">
+                android:gravity="center_vertical">
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/header_icon"
@@ -48,8 +51,9 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@string/app_name"
-                        android:textColor="?android:attr/textColorPrimary"
-                        android:textSize="22sp"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textAppearance="?attr/textAppearanceTitleLarge"
+                        android:fontFamily="sans-serif-medium"
                         android:textStyle="bold"
                         android:letterSpacing="-0.01" />
 
@@ -57,23 +61,72 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Edge-to-Edge Interception Engine"
-                        android:textColor="?android:attr/textColorSecondary"
+                        android:textColor="?attr/colorOnSurfaceVariant"
                         android:textSize="12sp" />
                 </LinearLayout>
             </LinearLayout>
 
             <androidx.appcompat.widget.AppCompatImageButton
-                android:id="@+id/btn_theme_toggle"
-                android:layout_width="44dp"
-                android:layout_height="44dp"
+                android:id="@+id/btn_settings"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:scaleType="centerInside"
-                android:src="@drawable/ic_theme_toggle"
-                android:contentDescription="Toggle Dark Mode"
-                app:tint="?attr/colorPrimary"
-                android:layout_alignParentEnd="true"
-                android:layout_centerVertical="true" />
-        </RelativeLayout>
+                android:src="@drawable/ic_settings"
+                android:contentDescription="Settings"
+                app:tint="?attr/colorOnSurfaceVariant" />
+        </LinearLayout>
+
+        <!-- Master Universal Control Card -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0.8dp"
+            app:strokeColor="?attr/colorOutlineVariant"
+            app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+            android:layout_marginHorizontal="16dp"
+            android:layout_marginBottom="12dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_alignParentStart="true"
+                    android:layout_toStartOf="@id/switch_master_enabled"
+                    android:layout_marginEnd="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="System Master Trigger"
+                        android:textColor="?android:attr/textColorPrimary"
+                        android:textSize="15sp"
+                        android:textStyle="bold"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Enable or disable all active interaction zones"
+                        android:textColor="?android:attr/textColorSecondary"
+                        android:textSize="12sp"
+                        android:layout_marginTop="2dp" />
+                </LinearLayout>
+
+                <com.google.android.material.materialswitch.MaterialSwitch
+                    android:id="@+id/switch_master_enabled"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true" />
+            </RelativeLayout>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- TabLayout -->
         <com.google.android.material.tabs.TabLayout
@@ -102,7 +155,8 @@
         android:layout_width="match_parent"
         android:layout_height="30dp"
         android:layout_alignParentTop="true"
-        android:background="#3338BDF8"/>
+        android:background="?attr/colorPrimary"
+        android:alpha="0.2" />
 
     <!-- Bottom Overlay Interceptor Bound Preview Block -->
     <View
@@ -110,6 +164,7 @@
         android:layout_width="match_parent"
         android:layout_height="30dp"
         android:layout_alignParentBottom="true"
-        android:background="#3338BDF8"/>
+        android:background="?attr/colorPrimary"
+        android:alpha="0.2" />
 
 </RelativeLayout>

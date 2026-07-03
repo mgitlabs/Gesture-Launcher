@@ -95,14 +95,21 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         // Pre-initialize Preferences and Theme configuration before standard lifecycle creation
         sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
-        boolean isDark = sharedPreferences.getBoolean("dark_theme", true);
-        if (isDark) {
-            if (AppCompatDelegate.getDefaultNightMode() != AppCompatDelegate.MODE_NIGHT_YES) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+        boolean autoTheme = sharedPreferences.getBoolean("theme_auto", false);
+        if (autoTheme) {
+            if (AppCompatDelegate.getDefaultNightMode() != AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM) {
+                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM);
             }
         } else {
-            if (AppCompatDelegate.getDefaultNightMode() != AppCompatDelegate.MODE_NIGHT_NO) {
-                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            boolean isDark = sharedPreferences.getBoolean("dark_theme", true);
+            if (isDark) {
+                if (AppCompatDelegate.getDefaultNightMode() != AppCompatDelegate.MODE_NIGHT_YES) {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+                }
+            } else {
+                if (AppCompatDelegate.getDefaultNightMode() != AppCompatDelegate.MODE_NIGHT_NO) {
+                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+                }
             }
         }
 
@@ -136,21 +143,28 @@ public class MainActivity extends AppCompatActivity {
         TabLayout tabLayout = findViewById(R.id.tab_layout);
         ViewPager2 viewPager = findViewById(R.id.view_pager);
 
-        // Dynamic Theme Switch Click Listener
-        androidx.appcompat.widget.AppCompatImageButton btnThemeToggle = findViewById(R.id.btn_theme_toggle);
-        if (btnThemeToggle != null) {
-            btnThemeToggle.setImageResource(isDark ? R.drawable.ic_sun : R.drawable.ic_moon);
-            btnThemeToggle.setOnClickListener(v -> {
-                boolean currentDark = sharedPreferences.getBoolean("dark_theme", true);
-                boolean nextDark = !currentDark;
-                sharedPreferences.edit().putBoolean("dark_theme", nextDark).apply();
+        // Settings Gear Click Listener
+        androidx.appcompat.widget.AppCompatImageButton btnSettings = findViewById(R.id.btn_settings);
+        if (btnSettings != null) {
+            btnSettings.setOnClickListener(v -> {
+                android.content.Intent settingsIntent = new android.content.Intent(this, SettingsActivity.class);
+                startActivity(settingsIntent);
+            });
+        }
 
-                if (nextDark) {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-                } else {
-                    AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-                }
-                recreate(); // Instantly apply theme shift
+        // Setup Master Universal Switch View
+        com.google.android.material.materialswitch.MaterialSwitch switchMasterEnabled = findViewById(R.id.switch_master_enabled);
+        if (switchMasterEnabled != null) {
+            switchMasterEnabled.setChecked(sharedPreferences.getBoolean("master_enabled", true));
+            switchMasterEnabled.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                sharedPreferences.edit().putBoolean("master_enabled", isChecked).apply();
+                
+                // Notify Service
+                android.content.Intent intent = new android.content.Intent("com.mahadi.gesturelauncher.CONFIG_CHANGED");
+                intent.setPackage(getPackageName());
+                sendBroadcast(intent);
+                
+                updateAllPreviews();
             });
         }
 
@@ -172,11 +186,8 @@ public class MainActivity extends AppCompatActivity {
                     tab.setText("Bottom Bar");
                     break;
                 case 1:
-                    tab.setText("Top Bar");
-                    break;
-                case 2:
                 default:
-                    tab.setText("Global");
+                    tab.setText("Top Bar");
                     break;
             }
         }).attach();
@@ -185,12 +196,25 @@ public class MainActivity extends AppCompatActivity {
         getWindow().getDecorView().post(this::updateAllPreviews);
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        // Sync master switch state if changed elsewhere
+        com.google.android.material.materialswitch.MaterialSwitch switchMasterEnabled = findViewById(R.id.switch_master_enabled);
+        if (switchMasterEnabled != null) {
+            switchMasterEnabled.setChecked(sharedPreferences.getBoolean("master_enabled", true));
+        }
+        updateAllPreviews();
+    }
+
     public void updateAllPreviews() {
         if (sharedPreferences == null) {
             sharedPreferences = getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
         }
+        boolean masterEnabled = sharedPreferences.getBoolean("master_enabled", true);
+
         // 1. Bottom Zone PREVIEW
-        boolean bottomEnabled = sharedPreferences.getBoolean(KEY_BOTTOM_ENABLED, true);
+        boolean bottomEnabled = masterEnabled && sharedPreferences.getBoolean(KEY_BOTTOM_ENABLED, true);
         int bottomTop = sharedPreferences.getInt(KEY_BOTTOM_THRESHOLD_TOP, 20);
         int bottomLeft = sharedPreferences.getInt(KEY_BOTTOM_THRESHOLD_LEFT, 0);
         int bottomRight = sharedPreferences.getInt(KEY_BOTTOM_THRESHOLD_RIGHT, 0);
@@ -203,7 +227,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // 2. Top Zone PREVIEW
-        boolean topEnabled = sharedPreferences.getBoolean(KEY_TOP_ENABLED, true);
+        boolean topEnabled = masterEnabled && sharedPreferences.getBoolean(KEY_TOP_ENABLED, true);
         int topHeight = sharedPreferences.getInt(KEY_TOP_THRESHOLD_HEIGHT, 20);
         int topLeft = sharedPreferences.getInt(KEY_TOP_THRESHOLD_LEFT, 0);
         int topRight = sharedPreferences.getInt(KEY_TOP_THRESHOLD_RIGHT, 0);
@@ -259,16 +283,14 @@ public class MainActivity extends AppCompatActivity {
                 case 0:
                     return new BottomBarFragment();
                 case 1:
-                    return new TopBarFragment();
-                case 2:
                 default:
-                    return new GlobalSettingsFragment();
+                    return new TopBarFragment();
             }
         }
 
         @Override
         public int getItemCount() {
-            return 3;
+            return 2;
         }
     }
 }

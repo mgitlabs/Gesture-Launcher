@@ -20,8 +20,8 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.ProgressBar;
-import android.widget.SeekBar;
 import com.google.android.material.materialswitch.MaterialSwitch;
+import com.google.android.material.slider.Slider;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.provider.Settings;
@@ -41,9 +41,9 @@ public class BottomBarFragment extends Fragment {
     
     // UI elements
     private MaterialSwitch switchBottomEnabled;
-    private SeekBar sbBottomThresholdTop;
-    private SeekBar sbBottomThresholdLeft;
-    private SeekBar sbBottomThresholdRight;
+    private Slider sbBottomThresholdTop;
+    private Slider sbBottomThresholdLeft;
+    private Slider sbBottomThresholdRight;
     private TextView tvBottomThresholdTopLabel;
     private TextView tvBottomThresholdLeftLabel;
     private TextView tvBottomThresholdRightLabel;
@@ -64,9 +64,9 @@ public class BottomBarFragment extends Fragment {
     private TextView tvBottomDelaySingleTapLabel;
     private TextView tvBottomDelayDoubleTapWindowLabel;
     private TextView tvBottomDelayLongPressLabel;
-    private SeekBar sbBottomDelaySingleTap;
-    private SeekBar sbBottomDelayDoubleTapWindow;
-    private SeekBar sbBottomDelayLongPress;
+    private Slider sbBottomDelaySingleTap;
+    private Slider sbBottomDelayDoubleTapWindow;
+    private Slider sbBottomDelayLongPress;
 
     private final String[] actionsDisplay = {
         "None (Disabled)",
@@ -77,7 +77,9 @@ public class BottomBarFragment extends Fragment {
         "Increase Volume",
         "Decrease Volume",
         "Increase Brightness",
-        "Decrease Brightness"
+        "Decrease Brightness",
+        "Toggle Auto-Rotation",
+        "Quick Note Pop-up"
     };
 
     private final String[] actionValues = {
@@ -89,7 +91,9 @@ public class BottomBarFragment extends Fragment {
         "volume_up",
         "volume_down",
         "brightness_up",
-        "brightness_down"
+        "brightness_down",
+        "screen_rotation_toggle",
+        "quick_notes"
     };
 
     @Nullable
@@ -174,19 +178,19 @@ public class BottomBarFragment extends Fragment {
         setSpinnerSelection(spinBottomSwipeLeft, sharedPreferences.getString(MainActivity.KEY_BOTTOM_ACTION_SWIPE_LEFT, "volume_down"), null);
         setSpinnerSelection(spinBottomSwipeRight, sharedPreferences.getString(MainActivity.KEY_BOTTOM_ACTION_SWIPE_RIGHT, "volume_up"), null);
 
-        // Geometry SeekBars Progress
-        sbBottomThresholdTop.setProgress(sharedPreferences.getInt(MainActivity.KEY_BOTTOM_THRESHOLD_TOP, 20));
-        sbBottomThresholdLeft.setProgress(sharedPreferences.getInt(MainActivity.KEY_BOTTOM_THRESHOLD_LEFT, 0));
-        sbBottomThresholdRight.setProgress(sharedPreferences.getInt(MainActivity.KEY_BOTTOM_THRESHOLD_RIGHT, 0));
+        // Geometry Sliders Progress
+        sbBottomThresholdTop.setValue((float) sharedPreferences.getInt(MainActivity.KEY_BOTTOM_THRESHOLD_TOP, 20));
+        sbBottomThresholdLeft.setValue((float) sharedPreferences.getInt(MainActivity.KEY_BOTTOM_THRESHOLD_LEFT, 0));
+        sbBottomThresholdRight.setValue((float) sharedPreferences.getInt(MainActivity.KEY_BOTTOM_THRESHOLD_RIGHT, 0));
 
         // Timing Settings Load
         int delaySingleTapValue = sharedPreferences.getInt(MainActivity.KEY_BOTTOM_DELAY_SINGLE_TAP, 250);
         int delayDoubleTapWindowValue = sharedPreferences.getInt(MainActivity.KEY_BOTTOM_DELAY_DOUBLE_TAP_WINDOW, 300);
         int delayLongPressValue = sharedPreferences.getInt(MainActivity.KEY_BOTTOM_DELAY_LONG_PRESS, 500);
 
-        sbBottomDelaySingleTap.setProgress(clampProgress(delaySingleTapValue - 50, 350));
-        sbBottomDelayDoubleTapWindow.setProgress(clampProgress(delayDoubleTapWindowValue - 150, 350));
-        sbBottomDelayLongPress.setProgress(clampProgress(delayLongPressValue - 200, 1300));
+        sbBottomDelaySingleTap.setValue((float) clampProgress(delaySingleTapValue - 50, 350));
+        sbBottomDelayDoubleTapWindow.setValue((float) clampProgress(delayDoubleTapWindowValue - 150, 350));
+        sbBottomDelayLongPress.setValue((float) clampProgress(delayLongPressValue - 200, 1300));
 
         tvBottomDelaySingleTapLabel.setText(delaySingleTapValue + "ms");
         tvBottomDelayDoubleTapWindowLabel.setText(delayDoubleTapWindowValue + "ms");
@@ -224,33 +228,40 @@ public class BottomBarFragment extends Fragment {
         });
 
         // Bottom Geometry Listeners
-        SeekBar.OnSeekBarChangeListener bottomGeometryListener = new SeekBar.OnSeekBarChangeListener() {
+        Slider.OnSliderTouchListener bottomGeometryTouchListener = new Slider.OnSliderTouchListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                if (seekBar.getId() == R.id.sb_bottom_threshold_top && progress < 1) {
-                    seekBar.setProgress(1);
-                }
-                updateLabelTexts();
-                triggerPreviewUpdateInActivity();
-            }
+            public void onStartTrackingTouch(@NonNull Slider slider) {}
 
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
+            public void onStopTrackingTouch(@NonNull Slider slider) {
                 sharedPreferences.edit()
-                    .putInt(MainActivity.KEY_BOTTOM_THRESHOLD_TOP, sbBottomThresholdTop.getProgress())
-                    .putInt(MainActivity.KEY_BOTTOM_THRESHOLD_LEFT, sbBottomThresholdLeft.getProgress())
-                    .putInt(MainActivity.KEY_BOTTOM_THRESHOLD_RIGHT, sbBottomThresholdRight.getProgress())
+                    .putInt(MainActivity.KEY_BOTTOM_THRESHOLD_TOP, (int) sbBottomThresholdTop.getValue())
+                    .putInt(MainActivity.KEY_BOTTOM_THRESHOLD_LEFT, (int) sbBottomThresholdLeft.getValue())
+                    .putInt(MainActivity.KEY_BOTTOM_THRESHOLD_RIGHT, (int) sbBottomThresholdRight.getValue())
                     .apply();
                 notifyConfigChanged();
             }
         };
 
-        sbBottomThresholdTop.setOnSeekBarChangeListener(bottomGeometryListener);
-        sbBottomThresholdLeft.setOnSeekBarChangeListener(bottomGeometryListener);
-        sbBottomThresholdRight.setOnSeekBarChangeListener(bottomGeometryListener);
+        sbBottomThresholdTop.addOnSliderTouchListener(bottomGeometryTouchListener);
+        sbBottomThresholdLeft.addOnSliderTouchListener(bottomGeometryTouchListener);
+        sbBottomThresholdRight.addOnSliderTouchListener(bottomGeometryTouchListener);
+
+        sbBottomThresholdTop.addOnChangeListener((slider, value, fromUser) -> {
+            if (value < 1.0f) {
+                slider.setValue(1.0f);
+            }
+            updateLabelTexts();
+            triggerPreviewUpdateInActivity();
+        });
+        sbBottomThresholdLeft.addOnChangeListener((slider, value, fromUser) -> {
+            updateLabelTexts();
+            triggerPreviewUpdateInActivity();
+        });
+        sbBottomThresholdRight.addOnChangeListener((slider, value, fromUser) -> {
+            updateLabelTexts();
+            triggerPreviewUpdateInActivity();
+        });
 
         // Bind Spinners Item Selected Listeners
         bindSpinnerListener(spinBottomSingleTap, MainActivity.KEY_BOTTOM_ACTION_SINGLE_TAP, layoutBottomSingleTapApp);
@@ -260,44 +271,44 @@ public class BottomBarFragment extends Fragment {
         bindSpinnerListener(spinBottomSwipeRight, MainActivity.KEY_BOTTOM_ACTION_SWIPE_RIGHT, null);
 
         // Timing listeners
-        sbBottomDelaySingleTap.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        sbBottomDelaySingleTap.addOnChangeListener((slider, value, fromUser) -> {
+            tvBottomDelaySingleTapLabel.setText(((int) value + 50) + "ms");
+        });
+        sbBottomDelaySingleTap.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                tvBottomDelaySingleTapLabel.setText((progress + 50) + "ms");
-            }
+            public void onStartTrackingTouch(@NonNull Slider slider) {}
+
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                sharedPreferences.edit().putInt(MainActivity.KEY_BOTTOM_DELAY_SINGLE_TAP, sbBottomDelaySingleTap.getProgress() + 50).apply();
+            public void onStopTrackingTouch(@NonNull Slider slider) {
+                sharedPreferences.edit().putInt(MainActivity.KEY_BOTTOM_DELAY_SINGLE_TAP, (int) sbBottomDelaySingleTap.getValue() + 50).apply();
                 notifyConfigChanged();
             }
         });
 
-        sbBottomDelayDoubleTapWindow.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        sbBottomDelayDoubleTapWindow.addOnChangeListener((slider, value, fromUser) -> {
+            tvBottomDelayDoubleTapWindowLabel.setText(((int) value + 150) + "ms");
+        });
+        sbBottomDelayDoubleTapWindow.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                tvBottomDelayDoubleTapWindowLabel.setText((progress + 150) + "ms");
-            }
+            public void onStartTrackingTouch(@NonNull Slider slider) {}
+
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                sharedPreferences.edit().putInt(MainActivity.KEY_BOTTOM_DELAY_DOUBLE_TAP_WINDOW, sbBottomDelayDoubleTapWindow.getProgress() + 150).apply();
+            public void onStopTrackingTouch(@NonNull Slider slider) {
+                sharedPreferences.edit().putInt(MainActivity.KEY_BOTTOM_DELAY_DOUBLE_TAP_WINDOW, (int) sbBottomDelayDoubleTapWindow.getValue() + 150).apply();
                 notifyConfigChanged();
             }
         });
 
-        sbBottomDelayLongPress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        sbBottomDelayLongPress.addOnChangeListener((slider, value, fromUser) -> {
+            tvBottomDelayLongPressLabel.setText(((int) value + 200) + "ms");
+        });
+        sbBottomDelayLongPress.addOnSliderTouchListener(new Slider.OnSliderTouchListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                tvBottomDelayLongPressLabel.setText((progress + 200) + "ms");
-            }
+            public void onStartTrackingTouch(@NonNull Slider slider) {}
+
             @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {}
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                sharedPreferences.edit().putInt(MainActivity.KEY_BOTTOM_DELAY_LONG_PRESS, sbBottomDelayLongPress.getProgress() + 200).apply();
+            public void onStopTrackingTouch(@NonNull Slider slider) {
+                sharedPreferences.edit().putInt(MainActivity.KEY_BOTTOM_DELAY_LONG_PRESS, (int) sbBottomDelayLongPress.getValue() + 200).apply();
                 notifyConfigChanged();
             }
         });
@@ -329,9 +340,9 @@ public class BottomBarFragment extends Fragment {
     }
 
     private void updateLabelTexts() {
-        int bottomTop = sbBottomThresholdTop.getProgress();
-        int bottomLeft = sbBottomThresholdLeft.getProgress();
-        int bottomRight = sbBottomThresholdRight.getProgress();
+        int bottomTop = (int) sbBottomThresholdTop.getValue();
+        int bottomLeft = (int) sbBottomThresholdLeft.getValue();
+        int bottomRight = (int) sbBottomThresholdRight.getValue();
 
         tvBottomThresholdTopLabel.setText(String.format(Locale.US, "%.1f%%", bottomTop / 10.0));
         tvBottomThresholdLeftLabel.setText(bottomLeft + "%");

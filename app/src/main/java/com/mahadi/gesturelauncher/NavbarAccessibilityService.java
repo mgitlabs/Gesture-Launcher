@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.graphics.drawable.GradientDrawable;
 import android.media.AudioManager;
 import android.provider.Settings;
 import android.os.Handler;
@@ -14,9 +15,12 @@ import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.accessibility.AccessibilityEvent;
+import android.widget.EditText;
 import android.widget.Toast;
+import com.example.R;
 
 public class NavbarAccessibilityService extends AccessibilityService {
 
@@ -95,6 +99,7 @@ public class NavbarAccessibilityService extends AccessibilityService {
         public void run() {
             if (!"none".equals(touchedZone)) {
                 isLongPressTriggered = true;
+                performLongPressFeedback(touchedZone);
                 triggerGestureAction(touchedZone, "long_press");
             }
         }
@@ -155,8 +160,9 @@ public class NavbarAccessibilityService extends AccessibilityService {
 
     private void loadConfiguration() {
         if (sharedPreferences != null) {
-            bottomEnabled = sharedPreferences.getBoolean("bottom_enabled", true);
-            topEnabled = sharedPreferences.getBoolean("top_enabled", true);
+            boolean masterEnabled = sharedPreferences.getBoolean("master_enabled", true);
+            bottomEnabled = masterEnabled && sharedPreferences.getBoolean("bottom_enabled", true);
+            topEnabled = masterEnabled && sharedPreferences.getBoolean("top_enabled", true);
 
             bottomThresholdTop = sharedPreferences.getInt("bottom_threshold_top", 20);
             bottomThresholdLeft = sharedPreferences.getInt("bottom_threshold_left", 0);
@@ -352,6 +358,7 @@ public class NavbarAccessibilityService extends AccessibilityService {
         switch (action) {
             case MotionEvent.ACTION_DOWN:
                 touchedZone = zone;
+                triggerGlow(zone);
                 downX = x;
                 downY = y;
                 downTime = System.currentTimeMillis();
@@ -515,6 +522,10 @@ public class NavbarAccessibilityService extends AccessibilityService {
             adjustSystemBrightness(true);
         } else if ("brightness_down".equals(actionToExecute)) {
             adjustSystemBrightness(false);
+        } else if ("screen_rotation_toggle".equals(actionToExecute)) {
+            toggleScreenRotation();
+        } else if ("quick_notes".equals(actionToExecute)) {
+            handler.post(this::showQuickNotesPopup);
         }
     }
 
@@ -583,7 +594,494 @@ public class NavbarAccessibilityService extends AccessibilityService {
         try {
             unregisterReceiver(configReceiver);
         } catch (Exception ignored) {}
+        hideQuickNotesPopup();
         removeOverlaysIfAttached();
         super.onDestroy();
+    }
+
+    private void triggerGlow(final String zone) {
+        final View v = "bottom".equals(zone) ? bottomOverlayView : topOverlayView;
+        if (v == null) return;
+
+        int primaryColor;
+        try {
+            android.util.TypedValue typedValue = new android.util.TypedValue();
+            int attrId = getResources().getIdentifier("colorPrimary", "attr", getPackageName());
+            if (attrId != 0) {
+                getTheme().resolveAttribute(attrId, typedValue, true);
+                primaryColor = typedValue.data;
+            } else {
+                primaryColor = 0xFF4F46E5;
+            }
+        } catch (Exception e) {
+            primaryColor = 0xFF4F46E5;
+        }
+
+        final int baseColor = primaryColor & 0x00FFFFFF;
+        int startColor = baseColor | 0x66000000;
+        int endColor = baseColor | 0x00000000;
+
+        final GradientDrawable gd = new GradientDrawable(
+            "bottom".equals(zone) ? GradientDrawable.Orientation.BOTTOM_TOP : GradientDrawable.Orientation.TOP_BOTTOM,
+            new int[]{startColor, endColor}
+        );
+        gd.setShape(GradientDrawable.RECTANGLE);
+        v.setBackground(gd);
+
+        final long duration = 250;
+        final long startTime = System.currentTimeMillis();
+
+        final Runnable fadeRunnable = new Runnable() {
+            @Override
+            public void run() {
+                long elapsed = System.currentTimeMillis() - startTime;
+                if (elapsed >= duration) {
+                    v.setBackground(null);
+                } else {
+                    float progress = 1.0f - ((float) elapsed / duration);
+                    int currentAlpha = (int) (progress * 130);
+                    gd.setAlpha(currentAlpha);
+                    v.postInvalidate();
+                    handler.postDelayed(this, 16);
+                }
+            }
+        };
+        v.post(fadeRunnable);
+    }
+
+    private void toggleScreenRotation() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            if (Settings.System.canWrite(this)) {
+                try {
+                    int currentRotation = Settings.System.getInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 1);
+                    int targetRotation = (currentRotation == 1) ? 0 : 1;
+                    Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, targetRotation);
+                    showToastOnMain(targetRotation == 1 ? "Auto-Rotate Activated" : "Rotation Locked");
+                } catch (Exception e) {
+                    showToastOnMain("Error toggling rotation: " + e.getMessage());
+                }
+            } else {
+                showToastOnMain("Write settings permission missing - Rotation toggle skipped");
+            }
+        } else {
+            try {
+                int currentRotation = Settings.System.getInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, 1);
+                int targetRotation = (currentRotation == 1) ? 0 : 1;
+                Settings.System.putInt(getContentResolver(), Settings.System.ACCELEROMETER_ROTATION, targetRotation);
+                showToastOnMain(targetRotation == 1 ? "Auto-Rotate Activated" : "Rotation Locked");
+            } catch (Exception e) {
+                showToastOnMain("Error: " + e.getMessage());
+            }
+        }
+    }
+
+    private View notesPopupView = null;
+    private WindowManager.LayoutParams quickNotesParams = null;
+    private boolean isQuickNotesMinimized = false;
+
+    private void showQuickNotesPopup() {
+        if (notesPopupView != null && notesPopupView.isAttachedToWindow()) {
+            return;
+        }
+
+        final Context context = new android.view.ContextThemeWrapper(this, com.example.R.style.Theme_MyApplication);
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            if (!Settings.canDrawOverlays(context)) {
+                try {
+                    Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
+                    intent.setData(android.net.Uri.parse("package:" + getPackageName()));
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    startActivity(intent);
+                    showToastOnMain("Enable Overlay Permission to write Quick Notes");
+                } catch (Exception e) {
+                    showToastOnMain("Overlay Permission required!");
+                }
+                return;
+            }
+        }
+
+        try {
+            notesPopupView = android.view.LayoutInflater.from(context).inflate(com.example.R.layout.floating_quick_notes, null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            showToastOnMain("Failed to inflate popup: " + e.getMessage());
+            return;
+        }
+
+        notesPopupView.setOnTouchListener((v, e) -> {
+            if (e.getAction() == MotionEvent.ACTION_OUTSIDE) {
+                hideQuickNotesPopup();
+                return true;
+            }
+            return false;
+        });
+
+        final View expandedCard = notesPopupView.findViewById(com.example.R.id.notes_expanded_card);
+        final View minimizedCard = notesPopupView.findViewById(com.example.R.id.notes_minimized_card);
+        final EditText etNote = notesPopupView.findViewById(com.example.R.id.et_quick_note);
+        final View btnMinimize = notesPopupView.findViewById(com.example.R.id.btn_minimize_note);
+        final View btnClose = notesPopupView.findViewById(com.example.R.id.btn_close_note);
+
+        // Ensure key intercepts so Back key doesn't block but hides popup
+        notesPopupView.setFocusableInTouchMode(true);
+        notesPopupView.requestFocus();
+        notesPopupView.setOnKeyListener((v, keyCode, event) -> {
+            if (keyCode == android.view.KeyEvent.KEYCODE_BACK && event.getAction() == android.view.KeyEvent.ACTION_UP) {
+                hideQuickNotesPopup();
+                return true;
+            }
+            return false;
+        });
+
+        // Sync text from SharedPreferences
+        String savedNote = sharedPreferences.getString("quick_note_text", "");
+        if (etNote != null) {
+            etNote.setText(savedNote);
+            etNote.setSelection(savedNote.length());
+
+            // Selection & Cursor Focus Controls
+            etNote.setTextIsSelectable(true);
+            etNote.setFocusable(true);
+            etNote.setFocusableInTouchMode(true);
+            etNote.setCursorVisible(true);
+            etNote.setClickable(true);
+
+            etNote.setOnKeyListener((v, keyCode, event) -> {
+                if (keyCode == android.view.KeyEvent.KEYCODE_BACK && event.getAction() == android.view.KeyEvent.ACTION_UP) {
+                    hideQuickNotesPopup();
+                    return true;
+                }
+                return false;
+            });
+
+            etNote.addTextChangedListener(new android.text.TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+                @Override
+                public void onTextChanged(CharSequence s, int start, int before, int count) {
+                    sharedPreferences.edit().putString("quick_note_text", s.toString()).apply();
+                }
+                @Override
+                public void afterTextChanged(android.text.Editable s) {}
+            });
+
+            // Clipboard Ribbon actions
+            final View btnSelectAll = notesPopupView.findViewById(com.example.R.id.btn_note_select_all);
+            if (btnSelectAll != null) {
+                btnSelectAll.setOnClickListener(v -> {
+                    etNote.requestFocus();
+                    etNote.selectAll();
+                });
+            }
+
+            final View btnCopy = notesPopupView.findViewById(com.example.R.id.btn_note_copy);
+            if (btnCopy != null) {
+                btnCopy.setOnClickListener(v -> {
+                    int start = etNote.getSelectionStart();
+                    int end = etNote.getSelectionEnd();
+                    String textToCopy;
+                    if (start >= 0 && end >= 0 && start != end) {
+                        textToCopy = etNote.getText().toString().substring(Math.min(start, end), Math.max(start, end));
+                    } else {
+                        textToCopy = etNote.getText().toString();
+                        etNote.selectAll();
+                    }
+                    if (!textToCopy.isEmpty()) {
+                        android.content.ClipboardManager clipboard = (android.content.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                        android.content.ClipData clip = android.content.ClipData.newPlainText("quick_note", textToCopy);
+                        if (clipboard != null) {
+                            clipboard.setPrimaryClip(clip);
+                            showToastOnMain("Copied to clipboard");
+                        }
+                    }
+                });
+            }
+
+            final View btnCut = notesPopupView.findViewById(com.example.R.id.btn_note_cut);
+            if (btnCut != null) {
+                btnCut.setOnClickListener(v -> {
+                    int start = etNote.getSelectionStart();
+                    int end = etNote.getSelectionEnd();
+                    if (start >= 0 && end >= 0 && start != end) {
+                        int min = Math.min(start, end);
+                        int max = Math.max(start, end);
+                        String textToCut = etNote.getText().toString().substring(min, max);
+                        android.content.ClipboardManager clipboard = (android.content.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                        android.content.ClipData clip = android.content.ClipData.newPlainText("quick_note", textToCut);
+                        if (clipboard != null) {
+                            clipboard.setPrimaryClip(clip);
+                        }
+                        etNote.getText().delete(min, max);
+                        showToastOnMain("Cut to clipboard");
+                    } else {
+                        String textToCut = etNote.getText().toString();
+                        if (!textToCut.isEmpty()) {
+                            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                            android.content.ClipData clip = android.content.ClipData.newPlainText("quick_note", textToCut);
+                            if (clipboard != null) {
+                                clipboard.setPrimaryClip(clip);
+                            }
+                            etNote.setText("");
+                            showToastOnMain("Cut entire note");
+                        }
+                    }
+                });
+            }
+
+            final View btnPaste = notesPopupView.findViewById(com.example.R.id.btn_note_paste);
+            if (btnPaste != null) {
+                btnPaste.setOnClickListener(v -> {
+                    android.content.ClipboardManager clipboard = (android.content.ClipboardManager) context.getSystemService(Context.CLIPBOARD_SERVICE);
+                    if (clipboard != null && clipboard.hasPrimaryClip() && clipboard.getPrimaryClipDescription() != null) {
+                        android.content.ClipData.Item item = clipboard.getPrimaryClip().getItemAt(0);
+                        CharSequence pasteText = item.getText();
+                        if (pasteText != null) {
+                            int start = etNote.getSelectionStart();
+                            int end = etNote.getSelectionEnd();
+                            if (start >= 0 && end >= 0) {
+                                int min = Math.min(start, end);
+                                int max = Math.max(start, end);
+                                etNote.getText().replace(min, max, pasteText);
+                            } else {
+                                etNote.append(pasteText);
+                            }
+                            showToastOnMain("Pasted");
+                        }
+                    } else {
+                        showToastOnMain("Clipboard is empty");
+                    }
+                });
+            }
+
+            final View btnClear = notesPopupView.findViewById(com.example.R.id.btn_note_clear);
+            if (btnClear != null) {
+                btnClear.setOnClickListener(v -> {
+                    etNote.setText("");
+                    showToastOnMain("Note cleared");
+                });
+            }
+        }
+
+        isQuickNotesMinimized = false;
+        if (expandedCard != null) expandedCard.setVisibility(View.VISIBLE);
+        if (minimizedCard != null) minimizedCard.setVisibility(View.GONE);
+
+        // Close action
+        if (btnClose != null) {
+            btnClose.setOnClickListener(v -> hideQuickNotesPopup());
+        }
+
+        final WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+
+        int notesWindowType;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            notesWindowType = WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY;
+        } else {
+            notesWindowType = WindowManager.LayoutParams.TYPE_PHONE;
+        }
+
+        // Window Layout Parameters - Clears FLAG_NOT_FOCUSABLE to allow selection and typing
+        quickNotesParams = new WindowManager.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                dpToPx(360),
+                notesWindowType,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
+                android.graphics.PixelFormat.TRANSLUCENT
+        );
+        quickNotesParams.gravity = android.view.Gravity.CENTER;
+        quickNotesParams.x = 0;
+        quickNotesParams.y = 0;
+        int margin = (int) (0.05f * screenWidth);
+        quickNotesParams.width = screenWidth - (margin * 2);
+
+        // Draggable System Integration on the Header Layout
+        final View headerLayout = notesPopupView.findViewById(com.example.R.id.quick_notes_header);
+        if (headerLayout != null) {
+            headerLayout.setOnTouchListener(new View.OnTouchListener() {
+                private int initialX;
+                private int initialY;
+                private float initialTouchX;
+                private float initialTouchY;
+
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                    if (isQuickNotesMinimized) {
+                        return false;
+                    }
+                    switch (event.getAction()) {
+                        case MotionEvent.ACTION_DOWN:
+                            initialX = quickNotesParams.x;
+                            initialY = quickNotesParams.y;
+                            initialTouchX = event.getRawX();
+                            initialTouchY = event.getRawY();
+                            return true;
+                        case MotionEvent.ACTION_UP:
+                            v.performClick();
+                            return true;
+                        case MotionEvent.ACTION_MOVE:
+                            float deltaX = event.getRawX() - initialTouchX;
+                            float deltaY = event.getRawY() - initialTouchY;
+                            quickNotesParams.x = initialX + (int) deltaX;
+                            quickNotesParams.y = initialY + (int) deltaY;
+                            try {
+                                if (wm != null && notesPopupView != null && notesPopupView.isAttachedToWindow()) {
+                                    wm.updateViewLayout(notesPopupView, quickNotesParams);
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                            return true;
+                    }
+                    return false;
+                }
+            });
+        }
+
+        // Minimize action
+        if (btnMinimize != null) {
+            btnMinimize.setOnClickListener(v -> {
+                if (wm == null || notesPopupView == null || !notesPopupView.isAttachedToWindow()) return;
+                
+                // Persistence Guard: Sync current text
+                if (etNote != null) {
+                    sharedPreferences.edit().putString("quick_note_text", etNote.getText().toString()).apply();
+                }
+
+                isQuickNotesMinimized = true;
+                if (expandedCard != null) expandedCard.setVisibility(View.GONE);
+                if (minimizedCard != null) minimizedCard.setVisibility(View.VISIBLE);
+
+                // Dynamically shrink LayoutParams
+                quickNotesParams.width = dpToPx(56);
+                quickNotesParams.height = dpToPx(56);
+                quickNotesParams.gravity = android.view.Gravity.TOP | android.view.Gravity.END;
+                quickNotesParams.x = dpToPx(16);
+                quickNotesParams.y = screenHeight / 3;
+                quickNotesParams.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH;
+
+                try {
+                    wm.updateViewLayout(notesPopupView, quickNotesParams);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+
+        // Restore action (clicking minimized bubble)
+        if (minimizedCard != null) {
+            minimizedCard.setOnClickListener(v -> {
+                if (wm == null || notesPopupView == null || !notesPopupView.isAttachedToWindow()) return;
+
+                // Persistence Guard: Query and sync text smoothly
+                if (etNote != null) {
+                    String currentSaved = sharedPreferences.getString("quick_note_text", "");
+                    etNote.setText(currentSaved);
+                    etNote.setSelection(currentSaved.length());
+                }
+
+                isQuickNotesMinimized = false;
+                if (expandedCard != null) expandedCard.setVisibility(View.VISIBLE);
+                if (minimizedCard != null) minimizedCard.setVisibility(View.GONE);
+
+                // Dynamically expand LayoutParams back to custom dialog size
+                quickNotesParams.width = screenWidth - (margin * 2);
+                quickNotesParams.height = dpToPx(360);
+                quickNotesParams.gravity = android.view.Gravity.CENTER;
+                quickNotesParams.x = 0;
+                quickNotesParams.y = 0;
+                quickNotesParams.flags = WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL | WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH;
+
+                try {
+                    wm.updateViewLayout(notesPopupView, quickNotesParams);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            });
+        }
+
+        try {
+            if (wm != null) {
+                wm.addView(notesPopupView, quickNotesParams);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            showToastOnMain("WindowManager insertion failed: " + e.getMessage());
+        }
+    }
+
+    private int dpToPx(int dp) {
+        return (int) (dp * getResources().getDisplayMetrics().density);
+    }
+
+    private void performLongPressFeedback(String zone) {
+        View v = "bottom".equals(zone) ? bottomOverlayView : topOverlayView;
+        if (v != null) {
+            v.performHapticFeedback(android.view.HapticFeedbackConstants.LONG_PRESS);
+            triggerLongPressVisualPulse(zone);
+        }
+    }
+
+    private void triggerLongPressVisualPulse(final String zone) {
+        final View v = "bottom".equals(zone) ? bottomOverlayView : topOverlayView;
+        if (v == null) return;
+
+        int secondaryColor;
+        try {
+            android.util.TypedValue typedValue = new android.util.TypedValue();
+            int attrId = getResources().getIdentifier("colorSecondary", "attr", getPackageName());
+            if (attrId != 0) {
+                getTheme().resolveAttribute(attrId, typedValue, true);
+                secondaryColor = typedValue.data;
+            } else {
+                secondaryColor = 0xFF10B981;
+            }
+        } catch (Exception e) {
+            secondaryColor = 0xFF10B981;
+        }
+
+        final int baseColor = secondaryColor & 0x00FFFFFF;
+        int startColor = baseColor | 0xAA000000;
+        int endColor = baseColor | 0x00000000;
+
+        final GradientDrawable gd = new GradientDrawable(
+            "bottom".equals(zone) ? GradientDrawable.Orientation.BOTTOM_TOP : GradientDrawable.Orientation.TOP_BOTTOM,
+            new int[]{startColor, endColor}
+        );
+        gd.setShape(GradientDrawable.RECTANGLE);
+        v.setBackground(gd);
+
+        final long duration = 400;
+        final long startTime = System.currentTimeMillis();
+
+        final Runnable pulseRunnable = new Runnable() {
+            @Override
+            public void run() {
+                long elapsed = System.currentTimeMillis() - startTime;
+                if (elapsed >= duration) {
+                    v.setBackground(null);
+                } else {
+                    float progress = 1.0f - ((float) elapsed / duration);
+                    int currentAlpha = (int) (progress * 200);
+                    gd.setAlpha(currentAlpha);
+                    v.postInvalidate();
+                    handler.postDelayed(this, 16);
+                }
+            }
+        };
+        v.post(pulseRunnable);
+    }
+
+    private void hideQuickNotesPopup() {
+        if (notesPopupView != null && notesPopupView.isAttachedToWindow()) {
+            try {
+                WindowManager wm = (WindowManager) getApplicationContext().getSystemService(Context.WINDOW_SERVICE);
+                if (wm != null) {
+                    wm.removeView(notesPopupView);
+                } else if (windowManager != null) {
+                    windowManager.removeView(notesPopupView);
+                }
+            } catch (Exception ignored) {}
+            notesPopupView = null;
+        }
     }
 }

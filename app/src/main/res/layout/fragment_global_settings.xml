@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true">
+    android:fillViewport="true"
+    android:background="?android:attr/windowBackground">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -11,7 +12,7 @@
         android:orientation="vertical"
         android:padding="16dp">
 
-        <!-- CARD 1: Accessibility Routing Service Status -->
+        <!-- Card: Permissions Quick Enable Block -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -20,7 +21,7 @@
             app:strokeWidth="0.8dp"
             app:strokeColor="?attr/colorOutlineVariant"
             app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
-            android:layout_marginBottom="14dp">
+            android:layout_marginBottom="16dp">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -28,75 +29,244 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="System Access Permits"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="16dp"/>
+
+                <!-- Accessibility Row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginBottom="16dp">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Accessibility Service"
+                            android:textColor="?android:attr/textColorPrimary"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:layout_alignParentStart="true"
+                            android:layout_toStartOf="@id/status_accessibility"/>
+
+                        <TextView
+                            android:id="@+id/status_accessibility"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Disabled"
+                            android:textColor="?attr/colorError"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"/>
+                    </RelativeLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Required to capture motion and execute system actions (Back, Home, Notifications)."
+                        android:textColor="?android:attr/textColorSecondary"
+                        android:textSize="12sp"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="12dp"
+                        android:lineSpacingMultiplier="1.1"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_enable_accessibility"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:text="Enable Accessibility Service"
+                        app:cornerRadius="12dp"/>
+                </LinearLayout>
+
+                <!-- Divider -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0.8dp"
+                    android:background="?attr/colorOutlineVariant"
+                    android:layout_marginBottom="16dp"/>
+
+                <!-- Overlay Row -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Draw Over Other Apps"
+                            android:textColor="?android:attr/textColorPrimary"
+                            android:textSize="16sp"
+                            android:textStyle="bold"
+                            android:layout_alignParentStart="true"
+                            android:layout_toStartOf="@id/status_overlay"/>
+
+                        <TextView
+                            android:id="@+id/status_overlay"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Disabled"
+                            android:textColor="?attr/colorError"
+                            android:textSize="12sp"
+                            android:textStyle="bold"
+                            android:layout_alignParentEnd="true"
+                            android:layout_centerVertical="true"/>
+                    </RelativeLayout>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Allows displaying overlay detection pads and the Floating Quick Notes window on top of other apps."
+                        android:textColor="?android:attr/textColorSecondary"
+                        android:textSize="12sp"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginBottom="12dp"
+                        android:lineSpacingMultiplier="1.1"/>
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_enable_overlay"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:text="Allow Overlay Permission"
+                        app:cornerRadius="12dp"/>
+                </LinearLayout>
+
+            </LinearLayout>
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Card: Theme Configuration Matrix -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:cardCornerRadius="24dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0.8dp"
+            app:strokeColor="?attr/colorOutlineVariant"
+            app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
+            android:layout_marginBottom="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Theme Controls"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="16dp"/>
+
+                <!-- Auto Theme Row wrapped in its own premium inner layout -->
                 <RelativeLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentStart="true"
-                        android:layout_centerVertical="true"
-                        android:text="ACCESSIBILITY ROUTING SERVICE"
-                        android:textColor="?android:attr/textColorSecondary"
-                        android:textSize="11sp"
-                        android:textStyle="bold"
-                        android:letterSpacing="0.06" />
+                    android:layout_marginBottom="20dp">
 
                     <LinearLayout
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_alignParentEnd="true"
-                        android:layout_centerVertical="true"
-                        android:background="@drawable/status_pill_bg"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
-                        android:paddingHorizontal="10dp"
-                        android:paddingVertical="4dp">
-
-                        <View
-                            android:id="@+id/status_dot"
-                            android:layout_width="8dp"
-                            android:layout_height="8dp"
-                            android:background="#EF4444"
-                            android:layout_marginEnd="6dp" />
+                        android:orientation="vertical"
+                        android:layout_alignParentStart="true"
+                        android:layout_toStartOf="@id/switch_theme_auto"
+                        android:layout_marginEnd="16dp">
 
                         <TextView
-                            android:id="@+id/tv_service_status"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="INACTIVE"
+                            android:text="System Auto Theme"
                             android:textColor="?android:attr/textColorPrimary"
-                            android:textSize="11sp"
-                            android:textStyle="bold" />
+                            android:textSize="16sp"
+                            android:textStyle="bold"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Delegate theme changes to system settings"
+                            android:textColor="?android:attr/textColorSecondary"
+                            android:textSize="12sp"
+                            android:layout_marginTop="2dp"/>
                     </LinearLayout>
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/switch_theme_auto"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true" />
                 </RelativeLayout>
 
-                <TextView
+                <!-- Divider -->
+                <View
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="Dual-Bar interceptors monitor custom screen edge swipes, taps, and holds to perform system tasks or launch applications without root access."
-                    android:textColor="?android:attr/textColorSecondary"
-                    android:textSize="13sp"
-                    android:lineSpacingMultiplier="1.2"
-                    android:layout_marginBottom="14dp" />
+                    android:layout_height="0.8dp"
+                    android:background="?attr/colorOutlineVariant"
+                    android:layout_marginBottom="20dp"/>
 
-                <Button
-                    android:id="@+id/btn_enable_service"
+                <!-- Dark Theme Row -->
+                <RelativeLayout
                     android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bento_button_blue"
-                    android:text="Enable Accessibility Service"
-                    android:textAllCaps="false"
-                    android:textColor="#FFFFFF"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:layout_alignParentStart="true"
+                        android:layout_toStartOf="@id/switch_theme_dark"
+                        android:layout_marginEnd="16dp">
+
+                        <TextView
+                            android:id="@+id/tv_manual_dark_mode_title"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Manual Dark Mode"
+                            android:textColor="?android:attr/textColorPrimary"
+                            android:textSize="16sp"
+                            android:textStyle="bold"/>
+
+                        <TextView
+                            android:id="@+id/tv_manual_dark_mode_desc"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Manually override light and dark appearance"
+                            android:textColor="?android:attr/textColorSecondary"
+                            android:textSize="12sp"
+                            android:layout_marginTop="2dp"/>
+                    </LinearLayout>
+
+                    <com.google.android.material.materialswitch.MaterialSwitch
+                        android:id="@+id/switch_theme_dark"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentEnd="true"
+                        android:layout_centerVertical="true" />
+                </RelativeLayout>
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- CARD 2: SYSTEM WRITE SETTINGS PERMISSION -->
+        <!-- Card: Quick Launcher Information / Summary info -->
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -104,8 +274,7 @@
             app:cardElevation="0dp"
             app:strokeWidth="0.8dp"
             app:strokeColor="?attr/colorOutlineVariant"
-            app:cardBackgroundColor="?attr/colorSurfaceContainerHigh"
-            android:layout_marginBottom="24dp">
+            app:cardBackgroundColor="?attr/colorSurfaceContainerHigh">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -113,81 +282,25 @@
                 android:orientation="vertical"
                 android:padding="16dp">
 
-                <RelativeLayout
-                    android:layout_width="match_parent"
+                <TextView
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="8dp">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_alignParentStart="true"
-                        android:layout_centerVertical="true"
-                        android:text="SYSTEM WRITE SETTINGS"
-                        android:textColor="?android:attr/textColorSecondary"
-                        android:textSize="11sp"
-                        android:textStyle="bold"
-                        android:letterSpacing="0.06" />
-
-                    <TextView
-                        android:id="@+id/tv_write_settings_status"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="DENIED"
-                        android:textColor="#EF4444"
-                        android:textSize="11sp"
-                        android:textStyle="bold"
-                        android:layout_alignParentEnd="true"
-                        android:layout_centerVertical="true" />
-                </RelativeLayout>
+                    android:text="System Integration"
+                    android:textColor="?attr/colorPrimary"
+                    android:textSize="14sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="12dp"/>
 
                 <TextView
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="In order to adjust system screen brightness via swipe gestures on the interceptors, Android requires explicit System Write Settings authorization."
+                    android:text="Configure accessibility indicators, customized actions, and gesture zones securely. Wallpaper dynamic color parsing is powered by the Google Material You engine."
                     android:textColor="?android:attr/textColorSecondary"
                     android:textSize="13sp"
-                    android:lineSpacingMultiplier="1.2"
-                    android:layout_marginBottom="14dp" />
-
-                <Button
-                    android:id="@+id/btn_grant_write_settings"
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:background="@drawable/bento_button_blue"
-                    android:text="Grant Write Settings"
-                    android:textAllCaps="false"
-                    android:textColor="#FFFFFF"
-                    android:textSize="14sp"
-                    android:textStyle="bold" />
+                    android:lineSpacingMultiplier="1.2"/>
 
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
-
-        <!-- Live Pulse Heartbeat Decorator -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_marginBottom="40dp">
-
-            <View
-                android:id="@+id/pulse_dot"
-                android:layout_width="8dp"
-                android:layout_height="8dp"
-                android:background="#10B981"
-                android:layout_marginEnd="8dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="COMPASS LIVE GEOMETRY DISPATCH ACTIVE"
-                android:textColor="?android:attr/textColorSecondary"
-                android:textSize="11sp"
-                android:textStyle="bold"
-                android:letterSpacing="0.08" />
-        </LinearLayout>
 
     </LinearLayout>
 </ScrollView>
